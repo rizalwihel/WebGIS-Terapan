@@ -16,8 +16,8 @@ API ini dibangun menggunakan **n8n** sebagai orkestrator workflow, **PostgreSQL 
 **Base URL:** `http://localhost:5678/webhook/` (Local Development)
 
 ---
-
-## 📡 Daftar Endpoint API
+  ```
+### 📡 Daftar Endpoint API
 
 ### 1. Daftar Kecamatan
 Memberikan katalog seluruh kecamatan yang tersedia untuk mengisi komponen pencarian atau dropdown.
@@ -28,7 +28,6 @@ Memberikan katalog seluruh kecamatan yang tersedia untuk mengisi komponen pencar
     { "id": 1, "nama": "Babelan" },
     { "id": 2, "nama": "Setu" }
   ]
-  ```
 
 ### 2. Peta Kerawanan (GeoJSON)
 Menyediakan data spasial poligon kecamatan beserta status kerawanan untuk dirender menggunakan Leaflet.js.
