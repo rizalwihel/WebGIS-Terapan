@@ -1,106 +1,142 @@
-# WebGIS-Terapan
+
+### **README.md**
 
 ```markdown
-# Bekasi FloodGuard AI-DSS API Documentation 🌊🤖
+# 🌊 Bekasi FloodGuard AI-DSS - Backend API Documentation
 
-Selamat datang di repositori Backend **Bekasi FloodGuard AI-DSS**. Proyek ini merupakan sistem pendukung keputusan (Decision Support System) berbasis WebGIS untuk mitigasi bencana banjir di Kabupaten Bekasi, mengintegrasikan data cuaca real-time, analisis spasial PostGIS, dan kecerdasan buatan (AI).
+Selamat datang di dokumentasi API **Bekasi FloodGuard AI-DSS**. Repository ini berisi dokumentasi *endpoint* yang dikembangkan menggunakan **n8n** sebagai *automation engine* dan **PostgreSQL/PostGIS** sebagai database spasial.
 
-**Backend Engineer:** Muhamad Rizal Wihel  
-**Status Proyek:** Development - Version 2.1 (Forecasting Enabled)
-
----
-
-## 🚀 Arsitektur Sistem
-API ini dibangun menggunakan **n8n** sebagai orkestrator workflow, **PostgreSQL (PostGIS)** sebagai database spasial, dan **Groq/Llama 3.1** sebagai engine analisis mitigasi bencana.
-
-**Base URL:** `http://localhost:5678/webhook/` (Local Development)
+API ini dirancang untuk mendukung sistem monitoring banjir di Kabupaten Bekasi dengan fitur *Early Warning System* (EWS) dan integrasi Pakar AI.
 
 ---
-  ```
-### 📡 Daftar Endpoint API
 
-### 1. Daftar Kecamatan
-Memberikan katalog seluruh kecamatan yang tersedia untuk mengisi komponen pencarian atau dropdown.
-- **Endpoint:** `GET /api/kecamatan`
-- **Response Format:**
+## 🚀 Informasi Dasar
+- **Base URL:** `http://localhost:5678/webhook`
+- **Format Data:** JSON
+- **CORS:** Diaktifkan (Access-Control-Allow-Origin: *)
+- **Author:** Muhamad Rizal Wihel (Backend Developer)
+- **Target Integrasi:** Janssen (Frontend/UI Developer)
+
+---
+```
+### 🛠️ Daftar Endpoint API
+
+### 1. Daftar Semua Kecamatan
+Digunakan untuk mengisi menu *dropdown* atau fitur *search* pada dashboard.
+- **Endpoint:** `/api/kecamatan`
+- **Metode:** `GET`
+- **Response Contoh:**
   ```json
   [
     { "id": 1, "nama": "Babelan" },
-    { "id": 2, "nama": "Setu" }
+    { "id": 2, "nama": "Cikarang Pusat" }
   ]
 
-### 2. Peta Kerawanan (GeoJSON)
-Menyediakan data spasial poligon kecamatan beserta status kerawanan untuk dirender menggunakan Leaflet.js.
-- **Endpoint:** `GET /peta-banjir`
-- **Properties Spasial:**
-  - `kecamatan`: Nama wilayah.
-  - `curah_hujan`: Angka curah hujan (mm).
-  - `status`: Klasifikasi (Sangat Rawan, Waspada, Aman).
 
-### 3. Statistik Ringkasan (Top Bar)
-Digunakan untuk mengisi bar informasi di bagian atas dashboard.
-- **Endpoint:** `GET /stats-ringkasan`
-- **Response Example:**
+### 2. Data Spasial Kerawanan (GeoJSON)
+Endpoint utama untuk merender poligon kecamatan di peta Leaflet.js.
+- **Endpoint:** `/peta-banjir`
+- **Metode:** `GET`
+- **Atribut Properti:**
+  - `kecamatan`: Nama wilayah.
+  - `curah_hujan`: Angka curah hujan terbaru (mm).
+  - `status`: Klasifikasi (Sangat Rawan, Waspada, Aman).
+- **Response Contoh:**
+  ```json
+  {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": { "type": "Polygon", "coordinates": [...] },
+        "properties": {
+          "kecamatan": "Babelan",
+          "curah_hujan": 45.5,
+          "status": "Waspada"
+        }
+      }
+    ]
+  }
+  ```
+
+### 3. Ringkasan Statistik (Dashboard Header)
+Memberikan data agregat untuk ditampilkan di bagian atas website.
+- **Endpoint:** `/stats-ringkasan`
+- **Metode:** `GET`
+- **Response Contoh:**
   ```json
   [
     {
       "total_kecamatan": 23,
       "jumlah_rawan": 5,
-      "jumlah_waspada": 8,
-      "rata_rata_hujan": 32.5
+      "jumlah_waspada": 3,
+      "rata_rata_hujan": 12.45
     }
   ]
   ```
 
-### 4. Riwayat & Prediksi Curah Hujan
-Menampilkan tren hujan 24 jam terakhir dan 12 jam ke depan (Forecasting).
-- **Endpoint:** `GET /riwayat-kecamatan`
-- **Query Params:** `?kecamatan=NamaKecamatan`
-- **Response Structure:** `{"data": [...]}`
+### 4. Riwayat & Prediksi Curah Hujan (Tren 24 Jam)
+Memberikan data *time-series* (12 jam terakhir & 12 jam prediksi masa depan).
+- **Endpoint:** `/riwayat-kecamatan`
+- **Metode:** `GET`
+- **Parameter:** `?kecamatan=NamaKecamatan`
+- **Catatan Penting:** Data dibungkus dalam objek `data` di dalam array pertama.
+- **Response Contoh:**
+  ```json
+  [
+    {
+      "data": [
+        { "curah_hujan": 0.5, "waktu": "2026-04-20T10:00:00" },
+        { "curah_hujan": 1.2, "waktu": "2026-04-20T11:00:00" }
+      ]
+    }
+  ]
+  ```
 
-### 5. Analisis Mitigasi Pakar AI
-Menghasilkan rekomendasi tindakan mitigasi spesifik wilayah berbasis AI (LLM).
-- **Endpoint:** `GET /api-mitigasi`
-- **Query Params:** `?nama=NamaKecamatan`
-- **Response Example:**
+### 5. Rekomendasi Mitigasi AI (Groq/Llama 3.1)
+Menghasilkan saran pakar mitigasi secara dinamis berdasarkan data cuaca wilayah.
+- **Endpoint:** `/api-mitigasi`
+- **Metode:** `GET`
+- **Parameter:** `?nama=NamaKecamatan`
+- **Response Contoh:**
   ```json
   {
-    "rekomendasi_ai": "Berdasarkan curah hujan 65mm di Babelan, segera evakuasi ke..."
+    "rekomendasi_ai": "Berdasarkan curah hujan 45mm di Babelan, disarankan untuk memantau pintu air..."
   }
   ```
 
-### 6. Reverse Geocoding (Cek Lokasi GPS)
-Mengidentifikasi wilayah kecamatan berdasarkan koordinat latitude dan longitude user.
-- **Endpoint:** `GET /search-lokasi`
-- **Query Params:** `?lat=-6.xxx&lng=107.xxx`
+### 6. Identifikasi Lokasi (Reverse Geocoding)
+Menentukan nama kecamatan berdasarkan koordinat klik pada peta atau GPS.
+- **Endpoint:** `/search-lokasi`
+- **Metode:** `GET`
+- **Parameter:** `?lat=xx&lng=yy`
+- **Response Contoh:**
+  ```json
+  [
+    { "kecamatan": "Babelan" }
+  ]
+  ```
 
 ---
 
-## 🛠️ Tech Stack
-- **Database:** PostgreSQL 16 + PostGIS (Spatial Analysis)
-- **Engine:** n8n Workflow Automation
-- **AI Model:** Llama 3.1-8b via Groq Cloud API
-- **Data Source:** Open-Meteo API (Forecast & Past Hours)
+## 🔄 Alur Kerja Data (Backend Logic)
+
+Sistem ini menjalankan automasi data sebagai berikut:
+1. **Data Ingestion:** Menarik data dari Open-Meteo API setiap kali *trigger* manual diaktifkan.
+2. **Spatial Processing:** Menggunakan fungsi `ST_Contains` dari PostGIS untuk memetakan koordinat ke poligon kecamatan.
+3. **AI Logic:** Menggunakan Groq AI (Llama 3.1) untuk menganalisis risiko banjir secara *real-time*.
+4. **Forecasting:** Menyediakan data 12 jam ke depan untuk fungsi peringatan dini.
 
 ---
 
-## 📝 Catatan Integrasi untuk Frontend (Janssen)
-1. **CORS:** API sudah dilengkapi header `Access-Control-Allow-Origin: *`.
-2. **Parsing Data:** Khusus untuk endpoint `/riwayat-kecamatan`, pastikan melakukan parsing pada indeks pertama array: `res.data[0].data`.
-3. **Trigger Manual:** Pastikan melakukan sinkronisasi data manual di dashboard n8n jika data cuaca perlu diperbarui secara instan.
+## ⚡ Teknologi yang Digunakan
+- **Automation:** n8n
+- **Database:** PostgreSQL + PostGIS extension
+- **LLM:** Groq AI (Llama 3.1 8B Instant)
+- **GIS Tools:** QGIS (Data Preparation)
 
 ---
-*Dikembangkan untuk tugas akhir Sistem Informasi Geografis Terapan (WebGis)*
+*Dokumentasi ini dibuat untuk mempermudah kolaborasi tim Backend dan Frontend dalam proyek Bekasi FloodGuard.*
 ```
 
 ---
-
-### **Logbook Individu (Minggu ke-7: Project Documentation)**
-
-Aktivitas pembuatan dokumentasi ini sangat penting sebagai bukti kerja tim yang baik:
-
-| Minggu | Aktivitas Utama (Backend) | Output Spesifik | Tools/Teknologi | Bukti (SS) | Kendala | Solusi |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **7** | Finalisasi arsitektur API dan penyusunan dokumentasi teknis (README.md). | File dokumentasi API komprehensif untuk kolaborasi tim Frontend. | Markdown, GitHub, n8n. | [SS GitHub Repo] | Kesulitan dalam menyelaraskan format data JSON yang kompleks bagi tim Frontend. | Menyusun dokumentasi spesifikasi *endpoint* yang mencakup parameter *input* dan contoh *output* JSON secara detail. |
-
-**Rizal**, file ini tinggal kamu *copy* ke Notepad, simpan dengan nama `README.md`, dan unggah ke repositori GitHub proyekmu. Janssen pasti akan sangat terbantu dengan ini. Ada bagian lain yang ingin kamu tambahkan?
