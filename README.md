@@ -1,14 +1,13 @@
 
 ### **README.md**
 
-```markdown
-# 🌊 Bekasi FloodGuard AI-DSS - Backend API Documentation
+markdown
+# 🌊 Backend API Documentation
 
 Selamat datang di dokumentasi API **Bekasi FloodGuard AI-DSS**. Repository ini berisi dokumentasi *endpoint* yang dikembangkan menggunakan **n8n** sebagai *automation engine* dan **PostgreSQL/PostGIS** sebagai database spasial.
 
 API ini dirancang untuk mendukung sistem monitoring banjir di Kabupaten Bekasi dengan fitur *Early Warning System* (EWS) dan integrasi Pakar AI.
 
----
 
 ## 🚀 Informasi Dasar
 - **Base URL:** `http://localhost:5678/webhook`
@@ -17,8 +16,7 @@ API ini dirancang untuk mendukung sistem monitoring banjir di Kabupaten Bekasi d
 - **Author:** Muhamad Rizal Wihel (Backend Developer)
 - **Target Integrasi:** Janssen (Frontend/UI Developer)
 
----
-```
+
 ### 🛠️ Daftar Endpoint API
 
 ### 1. Daftar Semua Kecamatan
